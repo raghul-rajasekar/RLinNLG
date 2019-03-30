@@ -77,11 +77,12 @@ class DQNAgent:
             if done:
                 target[action] = reward
             else:
-                target = reward + self.discount_factor * np.amax(self.model.predict(self.one_hot_state(next_state)[None, :])[0])
+                target[action] = reward + self.discount_factor * np.amax(self.model.predict(self.one_hot_state(next_state)[None, :])[0])
 
             update_input[i] = self.one_hot_state(state)
             update_target[i] = target
 
+        #print(update_input, update_target)
         self.model.fit(update_input, update_target, batch_size=batch_size, epochs=1, verbose=0)
 
     def load_model(self, name):
@@ -106,10 +107,12 @@ if __name__ == "__main__":
         score = 0
         state = env.reset()
         current_discount = 1.0
+        episode_step = 0
         while not done:
             #if agent.render:
             #    env.render()
             global_step += 1
+            episode_step += 1
 
             action = agent.get_action(state)
             next_state, reward, done = env.step(action)
@@ -132,7 +135,7 @@ if __name__ == "__main__":
                 #pylab.plot(episodes, scores, 'b')
                 #pylab.savefig("./save_graph/10by10.png")
                 print("episode:", e, "  score:", score, "  memory length:", len(agent.memory),
-                      "  epsilon:", agent.epsilon)
+                      "  epsilon:", agent.epsilon, "  number of steps:", episode_step)
 
         if e % 100 == 0:
         #    pass
